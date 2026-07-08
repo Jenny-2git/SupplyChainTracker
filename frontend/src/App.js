@@ -12,6 +12,8 @@ import Transfer from "./pages/Transfer";
 import Documents from "./pages/Documents";
 import TrackProduct from "./pages/TrackProduct";
 import AssignRoles from "./pages/AssignRoles";
+//import GenerateQR from "./pages/GenerateQR";
+import VerifyQR from "./pages/VerifyQR";
 
 function App() {
 
@@ -44,9 +46,11 @@ function App() {
 
                 <Route path="*" element={<Navigate to="/" />} />
 
-                <Route path="/roles" element={<AssignRoles />}
-/>
-                
+                <Route path="/roles" element={<AssignRoles />} />
+
+                <Route path="/verify-qr" element={<VerifyQR />} />
+
+               {/* <Route path="/generate-qr" element={<GenerateQR />} /> */}
 
             </Routes>
 

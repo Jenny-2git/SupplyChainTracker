@@ -1,30 +1,55 @@
-import Navbar from "./Navbar";
-import Sidebar from "./Sidebar";
+import { useState } from "react";
 import { Box } from "@mui/material";
 
-export default function Layout({children}){
+import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
 
-    return(
+const drawerWidth = 260;
+const collapsedWidth = 80;
 
-        <>
+export default function Layout({ children }) {
 
-            <Navbar/>
+    const [collapsed, setCollapsed] = useState(false);
 
-            <Sidebar/>
+    return (
+
+        <Box sx={{ display: "flex" }}>
+
+            <Sidebar
+                collapsed={collapsed}
+                setCollapsed={setCollapsed}
+            />
+
+            <Navbar
+                collapsed={collapsed}
+            />
 
             <Box
+                component="main"
                 sx={{
-                    ml: "240px",
-                    mt: "64px",
-                    p: 3
+                    flexGrow: 1,
+
+                    ml: collapsed
+                        ? `${collapsedWidth}px`
+                        : `${drawerWidth}px`,
+
+                    mt: "72px",
+
+                    p: 4,
+
+                    background: "#F5F7FA",
+
+                    minHeight: "100vh",
+
+                    transition: ".3s"
                 }}
             >
+
                 {children}
+
             </Box>
 
-
-
-        </>
+        </Box>
 
     );
 

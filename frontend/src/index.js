@@ -9,7 +9,10 @@ import { WalletProvider } from "./context/WalletContext";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 
+import theme from "./theme/theme";
 const root = ReactDOM.createRoot(
     document.getElementById("root")
 );
@@ -17,8 +20,10 @@ const root = ReactDOM.createRoot(
 root.render(
     <React.StrictMode>
         <WalletProvider>
-
-            <App />
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <App />
+            </ThemeProvider>
 
             <ToastContainer
                 position="top-right"

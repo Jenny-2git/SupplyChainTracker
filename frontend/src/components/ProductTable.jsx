@@ -2,6 +2,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Chip } from "@mui/material";
 
 export default function ProductTable({ rows }) {
+    const [products, setProducts] = useState([]);
 
     const columns = [
 
@@ -97,6 +98,7 @@ export default function ProductTable({ rows }) {
             pageSizeOptions={[5,10,20]}
 
         />
+
 
     );
 
