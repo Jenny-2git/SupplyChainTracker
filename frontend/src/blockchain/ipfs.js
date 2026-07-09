@@ -2,7 +2,8 @@
 
 import axios from "axios";
 
-const PINATA_JWT = "cee5918945f843e36227";
+const PINATA_JWT = process.env.REACT_APP_PINATA_JWT;
+
 
 export async function uploadToIPFS(file) {
   const formData = new FormData();
@@ -19,5 +20,5 @@ export async function uploadToIPFS(file) {
     }
   );
 
-  return res.data.IpfsHash;
+  return res.data.IpfsCID;
 }

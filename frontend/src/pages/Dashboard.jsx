@@ -11,21 +11,33 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import { Box, Typography, Chip } from "@mui/material";
 import StatusPieChart from "../charts/StatusPieChart";
 import QualityBarChart from "../charts/QualityBarChart";
-
+import { connectWallet } from "../blockchain/web3";
 import {
 Card,
 CardContent
 } from "@mui/material";
-
+import BlockchainInfo from "../components/BlockchainInfo";
 import ProductTable from "../components/ProductTable";
 import { Stack, Button } from "@mui/material";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import TravelExploreIcon from "@mui/icons-material/TravelExplore";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import {CONTRACT_ADDRESS} from "../blockchain/contract";
+import RecentActivity from "../components/RecentActivity";
+import { TextField } from "@mui/material";
+import ReportProblemIcon from "@mui/icons-material/ReportProblem";
+
 
 export default function Dashboard() {
     const [products, setProducts] = useState([]);
+    const [events, setEvents] = useState([]);
+    const [search, setSearch] = useState("");
+    const [blockchain, setBlockchain] = useState({
+        network: "",
+        wallet: "",
+        chainId: "",
+        latestBlock: 0,
+    });
     const [stats, setStats] = useState({
 
         total:0,
@@ -36,7 +48,9 @@ export default function Dashboard() {
 
         rejected:0,
 
-        delivered:0
+        delivered:0,
+
+        recalled:0
 
     });
 
@@ -48,26 +62,59 @@ export default function Dashboard() {
 
     async function loadDashboard(){
 
-        const contract = await getContract();
+        const { provider, address } = await connectWallet();
+        const contract = await getContract(provider);
+        const network = await provider.getNetwork();
+        
+        const latestBlock = await provider.getBlockNumber();
 
-        const products = await contract.getAllProducts();
-        setProducts(
-            products.map((p, index) => ({
-                id: index,
-                uid: p.uid,
-                name: p.name,
-                batch: p.batchNo,
-                score: Number(p.totalScore),
-                status: Number(p.status),
-            }))
+        setBlockchain({
+            network: network.name === "unknown" ? "Ganache" : network.name,
+            wallet: address,
+            chainId: Number(network.chainId),
+            latestBlock,
+        });
+
+        const createdEvents = await contract.queryFilter(
+            contract.filters.ProductCreated()
         );
+
+        const recentEvents = createdEvents
+            .slice(-5)
+            .reverse()
+            .map((event) => ({
+                title: "Product Created",
+                description: event.args.uid,
+            }));
+
+        setEvents(recentEvents);
 
         try{
 
-            const contract = await getContract();
+            //const contract = await getContract();
 
-            const result = await contract.getDashboardStats();
+            const products = await contract.getAllProducts();
 
+            const productList = await Promise.all(
+                    products.map(product => contract.getProduct(product.uid))
+            );
+
+            setProducts(
+                products.map((p, index) => ({
+                    id: index,
+                    uid: p.uid,
+                    name: p.name,
+                    batch: p.batchNo,
+                    score: Number(p.qualityScore),
+                    status: Number(p.status),
+                }))
+            );
+
+        
+            const result = await contract.getProductStats();
+            
+            
+         
             setStats({
 
                 total:Number(result[0]),
@@ -78,19 +125,37 @@ export default function Dashboard() {
 
                 rejected:Number(result[3]),
 
-                delivered:Number(result[4])
+                delivered:Number(result[4]),
+
+                recalled:Number(result[5])
+
 
             });
+           
+
+            }
+            catch(err){
+
+                console.log(err);
+
+            }
 
         }
-        catch(err){
+        const filteredProducts = products.filter((product) => {
 
-            console.log(err);
+        const keyword = search.toLowerCase();
 
-        }
+        return (
 
-    }
+            product.uid.toLowerCase().includes(keyword) ||
 
+            product.name.toLowerCase().includes(keyword) ||
+
+            product.batch.toLowerCase().includes(keyword)
+
+        );
+
+    });
     return(
 
         <Layout>
@@ -149,7 +214,7 @@ export default function Dashboard() {
 
                             </Grid>
 
-                            <Grid size={{xs:12,lg:6}}>
+                            <Grid item xs={12} lg={6}>
 
                             <Card>
 
@@ -191,8 +256,17 @@ export default function Dashboard() {
 
             </Typography>
 
+            <TextField
+                fullWidth
+                label="Search by UID, Product or Batch"
+                variant="outlined"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                sx={{ mb: 2 }}
+            />
+
             <ProductTable
-            rows={products}
+                rows={filteredProducts}
             />
 
             </CardContent>
@@ -211,6 +285,14 @@ export default function Dashboard() {
             >
 
             Quick Actions
+
+            <BlockchainInfo
+                network={blockchain.network}
+                wallet={blockchain.wallet}
+                contract={CONTRACT_ADDRESS}
+                chainId={blockchain.chainId}
+                latestBlock={blockchain.latestBlock}
+            />
 
             </Typography>
 
@@ -255,7 +337,7 @@ export default function Dashboard() {
             
             <Grid container spacing={3}>
 
-                <Grid size={{xs:12,md:4}}>
+                <Grid item xs={12} lg={6}>
                     <StatsCard
                         title="Products"
                         value={stats.total}
@@ -264,7 +346,7 @@ export default function Dashboard() {
                     />
                 </Grid>
 
-                <Grid size={{xs:12,md:4}}>
+                <Grid item xs={12} lg={6}>
                     <StatsCard
                         title="Approved"
                         value={stats.approved}
@@ -273,7 +355,7 @@ export default function Dashboard() {
                     />
                 </Grid>
 
-                <Grid size={{xs:12,md:4}}>
+                <Grid item xs={12} lg={6}>
                     <StatsCard
                         title="Inspection"
                         value={stats.inspection}
@@ -282,7 +364,7 @@ export default function Dashboard() {
                     />
                 </Grid>
 
-                <Grid size={{xs:12,md:6}}>
+                <Grid item xs={12} lg={6}>
                     <StatsCard
                         title="Rejected"
                         value={stats.rejected}
@@ -290,7 +372,7 @@ export default function Dashboard() {
                     />
                 </Grid>
 
-                <Grid size={{xs:12,md:6}}>
+                <Grid item xs={12} lg={6}>
                     <StatsCard
                         title="Delivered"
                         value={stats.delivered}
@@ -298,10 +380,27 @@ export default function Dashboard() {
                     />
                 </Grid>
 
+                <Grid size={{xs:12,md:6}}>
+
+                <StatsCard
+
+                title="Recalled"
+
+                value={stats.recalled}
+
+                icon={<ReportProblemIcon/>}
+
+                color="#B91C1C"
+
+                />
+
+                </Grid>
+
             </Grid>
 
         </Layout>
 
     );
+    <RecentActivity events={events} />
 
 }

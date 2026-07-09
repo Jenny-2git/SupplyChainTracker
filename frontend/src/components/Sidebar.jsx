@@ -38,7 +38,7 @@ import ScienceIcon from "@mui/icons-material/Science";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DescriptionIcon from "@mui/icons-material/Description";
 import TravelExploreIcon from "@mui/icons-material/TravelExplore";
-
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 export default function Sidebar({
 
@@ -63,6 +63,11 @@ export default function Sidebar({
     { text: "Track Product", path: "/track-product" },
     { text: "Generate QR", path: "/generate-qr" },
     { text: "Verify QR", path: "/verify-qr" },
+    {
+    text: "Recall Product",
+    path: "/recall",
+    icon: <WarningAmberIcon />,
+},
   ];
   return (
   

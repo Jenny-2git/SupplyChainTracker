@@ -18,7 +18,16 @@ import {
   Typography,
   Alert,
 } from "@mui/material";
+import {
+  Timeline,
+  TimelineItem,
+  TimelineSeparator,
+  TimelineConnector,
+  TimelineContent,
+  TimelineDot,
+} from "@mui/lab";
 
+import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
 const statusMap = [
   "Created",
   "Quality Checking",
@@ -42,7 +51,7 @@ export default function TrackProduct() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchParams] = useSearchParams();
-
+  const [recall, setRecall] = useState(false);
   const qrData = product
     ? JSON.stringify({
         uid: product.uid,
@@ -78,6 +87,14 @@ export default function TrackProduct() {
       const contract = await getContract();
 
       const p = await contract.getProduct(uid);
+
+      setProduct(p);
+
+      if (p.isRecalled) {
+          setRecall(true);
+      } else {
+          setRecall(false);
+      }
       const h = await contract.getProductHistory(uid);
       const q = await contract.getQualityReports(uid);
       const d = await contract.getDocuments(uid);
@@ -97,7 +114,13 @@ export default function TrackProduct() {
 
       setLoading(false);
     }
+
+  
+
+
   };
+
+
 
   return (
     <Layout>
@@ -140,6 +163,8 @@ export default function TrackProduct() {
           {error}
         </Alert>
       )}
+
+
 
       {product && (
         <Card sx={{ mt: 3 }}>
@@ -415,8 +440,189 @@ export default function TrackProduct() {
         </Card>
       )}
 
+      {history.length > 0 && (
+
+      <Card sx={{ mt: 3 }}>
+
+      <CardContent>
+
+      <Typography
+      variant="h5"
+      gutterBottom
+      >
+
+      Product Journey
+
+      </Typography>
+
+      <Timeline position="alternate">
+
+      {history.map((item,index)=>(
+
+      <TimelineItem key={index}>
+
+      <TimelineOppositeContent color="text.secondary">
+
+      {new Date(
+      Number(item.timestamp)*1000
+      ).toLocaleString()}
+
+      </TimelineOppositeContent>
+
+      <TimelineSeparator>
+
+      <TimelineDot
+      color={
+      item.action.includes("Approved")
+      ? "success"
+      : item.action.includes("Inspection")
+      ? "warning"
+      : item.action.includes("Rejected")
+      ? "error"
+      : "primary"
+      }
+      />
+
+      {index!==history.length-1 &&
+
+      <TimelineConnector/>
+
+      }
+
+      </TimelineSeparator>
+
+      <TimelineContent>
+
+      <Typography
+      fontWeight="bold"
+      >
+
+      {item.action}
+
+      </Typography>
+
+      <Typography
+      variant="body2"
+      sx={{wordBreak:"break-all"}}
+      >
+
+      {item.actor}
+
+      </Typography>
+
+      </TimelineContent>
+
+      </TimelineItem>
+
+      ))}
+
+      </Timeline>
+
+      </CardContent>
+
+      </Card>
+
+      )}
+
+      {product?.isRecalled && (
+
+      <Alert
+
+      severity="error"
+
+      sx={{ mb:3 }}
+
+      >
+
+      <b> PRODUCT RECALLED</b>
+
+      <br/>
+
+      Reason:
+
+      {product.recallReason}
+
+      </Alert>
+
+      )}
+
+      {documents.length > 0 && (
+
+      <Card sx={{ mt:3 }}>
+
+      <CardContent>
+
+      <Typography
+      variant="h5"
+      gutterBottom
+      >
+
+      Documents
+
+      </Typography>
+
+      {documents.map((doc,index)=>(
+
+      <Paper
+      key={index}
+      sx={{ p:2, mb:2 }}
+      >
+
+      <Typography>
+
+      <b>Name:</b> {doc.fileName}
+
+      </Typography>
+
+      <Typography>
+
+      <b>CID:</b>
+
+      </Typography>
+
+      <Typography
+      variant="caption"
+      sx={{ wordBreak:"break-all" }}
+      >
+
+      {doc.ipfsCID}
+
+      </Typography>
+      <Chip
+      color="success"
+      label="Verified on Blockchain"
+      sx={{ ml: 1 }}
+      />
+
+      <Button
+
+      sx={{ mt:2 }}
+
+      variant="contained"
+
+      href={`https://gateway.pinata.cloud/ipfs/${doc.ipfsCID}`}
+
+      target="_blank"
+
+      >
+
+      Open Document
+
+      </Button>
+
+      </Paper>
+
+      ))}
+
+      </CardContent>
+
+      </Card>
+
+      )}
+
 
 
     </Layout>
   );
+  
 }

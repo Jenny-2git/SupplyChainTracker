@@ -26,7 +26,7 @@ export default function UploadDocuments() {
   const [uid, setUid] = useState("");
   const [type, setType] = useState(0);
   const [file, setFile] = useState(null);
-
+  const [cid, setCid] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -39,7 +39,9 @@ export default function UploadDocuments() {
     try {
       setLoading(true);
 
-      const cid = await uploadToIPFS(file);
+      const uploadedCID = await uploadToIPFS(file);
+
+      setCid(uploadedCID);
 
       const contract = await getContract();
 
@@ -125,8 +127,9 @@ export default function UploadDocuments() {
             <Button
               variant="contained"
               onClick={uploadDocument}
+              disabled={!uid || !file || loading}
             >
-              Upload
+              {loading ? "Uploading..." : "Upload"}
             </Button>
 
           </Box>
@@ -139,6 +142,23 @@ export default function UploadDocuments() {
             <Alert sx={{ mt: 2 }}>
               {message}
             </Alert>
+          )}
+
+          {cid && (
+
+          <Alert
+          severity="success"
+          sx={{ mt:2 }}
+          >
+
+          IPFS CID
+
+          <br/>
+
+          {cid}
+
+          </Alert>
+
           )}
 
         </CardContent>

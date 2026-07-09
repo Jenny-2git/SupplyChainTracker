@@ -1,5 +1,6 @@
 import { DataGrid } from "@mui/x-data-grid";
 import { Chip } from "@mui/material";
+import { useState } from "react";
 
 export default function ProductTable({ rows }) {
     const [products, setProducts] = useState([]);

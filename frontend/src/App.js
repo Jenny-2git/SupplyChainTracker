@@ -14,7 +14,7 @@ import TrackProduct from "./pages/TrackProduct";
 import AssignRoles from "./pages/AssignRoles";
 //import GenerateQR from "./pages/GenerateQR";
 import VerifyQR from "./pages/VerifyQR";
-
+import RecallProduct from "./pages/RecallProduct";
 function App() {
 
     const { wallet } = useWallet();
@@ -50,8 +50,7 @@ function App() {
 
                 <Route path="/verify-qr" element={<VerifyQR />} />
 
-               {/* <Route path="/generate-qr" element={<GenerateQR />} /> */}
-
+               <Route path="/recall" element={<RecallProduct />} />
             </Routes>
 
         </BrowserRouter>
