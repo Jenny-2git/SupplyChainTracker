@@ -36,7 +36,7 @@ const CreateProduct = () => {
 
       console.log("1. Getting contract...");
       const contract = await getContract();
-
+      console.log("Create Product Contract:", contract.target);
       console.log("2. Contract:", contract.target);
 
       const manufactureTimestamp = Math.floor(
@@ -59,6 +59,9 @@ const CreateProduct = () => {
 
       const receipt = await tx.wait();
 
+   
+      console.log("Status:", receipt.status);
+
       console.log("6. Receipt:", receipt);
 
       toast.success("Product created!");
@@ -74,6 +77,8 @@ const CreateProduct = () => {
       console.log("===============================");
 
       toast.error(err.shortMessage || err.message);
+    }finally {
+    setLoading(false);
     }
   }
 

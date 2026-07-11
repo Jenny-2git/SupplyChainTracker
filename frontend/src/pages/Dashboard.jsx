@@ -60,12 +60,16 @@ export default function Dashboard() {
 
     },[]);
 
+
+
+
+        
+
     async function loadDashboard(){
 
         const { provider, address } = await connectWallet();
-        const contract = await getContract(provider);
+        const contract = await getContract();
         const network = await provider.getNetwork();
-        
         const latestBlock = await provider.getBlockNumber();
 
         setBlockchain({
@@ -76,8 +80,9 @@ export default function Dashboard() {
         });
 
         const createdEvents = await contract.queryFilter(
-            contract.filters.ProductCreated()
+        contract.filters.ProductCreated()
         );
+      
 
         const recentEvents = createdEvents
             .slice(-5)
@@ -89,18 +94,32 @@ export default function Dashboard() {
 
         setEvents(recentEvents);
 
+        
+
+        console.log("Products:", products);
+        console.log("Length:", products.length);
+
+
         try{
 
             //const contract = await getContract();
-
+            // const createdEvents = await contract.queryFilter(
+            // contract.filters.ProductCreated()
+            // );
             const products = await contract.getAllProducts();
 
+            console.log("Products:", products);
+            console.log("Length:", products.length);
+
+            const uids = await contract.getAllProductUIDs();
             const productList = await Promise.all(
-                    products.map(product => contract.getProduct(product.uid))
+                products.map(uid =>
+                    contract.getProduct(uid)
+                )
             );
 
             setProducts(
-                products.map((p, index) => ({
+                productList.map((p, index) => ({
                     id: index,
                     uid: p.uid,
                     name: p.name,
@@ -156,6 +175,8 @@ export default function Dashboard() {
         );
 
     });
+
+
     return(
 
         <Layout>
@@ -166,7 +187,7 @@ export default function Dashboard() {
                 sx={{ mt:1 }}
             >
 
-                <Grid size={{xs:12,lg:6}}>
+                <Grid item={{xs:12,lg:6}}>
 
                     <Card>
                         <Box
@@ -241,7 +262,7 @@ export default function Dashboard() {
 
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid item={{ xs: 12 }}>
 
             <Card>
 
@@ -330,6 +351,7 @@ export default function Dashboard() {
             </Button>
 
             </Stack>
+            <RecentActivity events={events} />
 
             </CardContent>
 
@@ -380,7 +402,7 @@ export default function Dashboard() {
                     />
                 </Grid>
 
-                <Grid size={{xs:12,md:6}}>
+                <Grid item={{xs:12,md:6}}>
 
                 <StatsCard
 
@@ -401,6 +423,41 @@ export default function Dashboard() {
         </Layout>
 
     );
-    <RecentActivity events={events} />
+    
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

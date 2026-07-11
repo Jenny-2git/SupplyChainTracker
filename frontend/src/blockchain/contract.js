@@ -20,8 +20,10 @@ import { Contract } from "ethers";
 import { connectWallet } from "./web3";
 import SupplyChain from "../contracts/SupplyChain.json";
 
-export const CONTRACT_ADDRESS =
-  "0x04CB0aBA89174f53C8Fb9514F7eC365899f7BC33";
+const { address } = await connectWallet();
+console.log("Connected wallet:", address);
+
+export const CONTRACT_ADDRESS ="0x1DbF5414a0ceD3D1599227847f56005de24d4A36";
 
 export async function getContract() {
   const { signer } = await connectWallet();

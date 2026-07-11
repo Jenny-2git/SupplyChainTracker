@@ -3,7 +3,7 @@ import { Chip } from "@mui/material";
 import { useState } from "react";
 
 export default function ProductTable({ rows }) {
-    const [products, setProducts] = useState([]);
+    //const [products, setProducts] = useState([]);
 
     const columns = [
 
@@ -104,3 +104,5 @@ export default function ProductTable({ rows }) {
     );
 
 }
+
+
