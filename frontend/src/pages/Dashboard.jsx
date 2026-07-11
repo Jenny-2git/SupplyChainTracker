@@ -82,15 +82,28 @@ export default function Dashboard() {
         const createdEvents = await contract.queryFilter(
         contract.filters.ProductCreated()
         );
+        console.log("Created Events:", createdEvents);
+        if (createdEvents.length > 0) {
+            console.log("First Event Args:", createdEvents[0].args);
+        }
       
 
+        // const recentEvents = createdEvents
+        //     .slice(-5)
+        //     .reverse()
+        //     .map((event) => ({
+        //         title: "Product Created",
+        //         description: event.args.uid,
+        //         //description: String(event.args.uid),
+        //         //description: String(event.args[0]),
+        //     }));
         const recentEvents = createdEvents
-            .slice(-5)
-            .reverse()
-            .map((event) => ({
-                title: "Product Created",
-                description: event.args.uid,
-            }));
+        .slice(-5)
+        .reverse()
+        .map((event, index) => ({
+            title: "Product Created",
+            description: `Manufacturer: ${event.args.manufacturer}`,
+        }));
 
         setEvents(recentEvents);
 
@@ -110,7 +123,9 @@ export default function Dashboard() {
 
             console.log("Products:", products);
             console.log("Length:", products.length);
-
+            if (products.length > 0) {
+                console.log(products[0]);
+            }
             const uids = await contract.getAllProductUIDs();
             const productList = await Promise.all(
                 products.map(uid =>
@@ -129,9 +144,10 @@ export default function Dashboard() {
                 }))
             );
 
-        
+            console.log("Products:", products);
+
             const result = await contract.getProductStats();
-            
+            console.log("Product Stats:", result);
             
          
             setStats({
@@ -357,7 +373,7 @@ export default function Dashboard() {
 
             </Card>
             
-            <Grid container spacing={3}>
+            {/* <Grid container spacing={3}>
 
                 <Grid item xs={12} lg={6}>
                     <StatsCard
@@ -418,7 +434,7 @@ export default function Dashboard() {
 
                 </Grid>
 
-            </Grid>
+            </Grid> */}
 
         </Layout>
 
